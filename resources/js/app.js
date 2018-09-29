@@ -38,7 +38,8 @@ let routes = [
 ]
 
 const router = new VueRouter({
-  routes // short for `routes: routes`
+	mode: 'history',
+  	routes // short for `routes: routes`
 })
 
 import VueProgressBar from 'vue-progressbar'
@@ -55,6 +56,8 @@ Vue.filter('uptext', function(text) {
 Vue.filter('configDate', function(created){
 	return moment(created).format('MMM Do YYYY');
 });
+
+window.Fire = new Vue();
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
