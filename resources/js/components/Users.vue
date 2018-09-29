@@ -14,7 +14,7 @@
                       <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                     </div>
                   </div> -->
-                  <button class="btn btn-success" data-toggle="modal" data-target="#AddUserModal">
+                  <button class="btn btn-success" @click="createUserModal()">
                       Add New <i class="fas fa-user-plus fa-fw"></i>
                   </button>
                 </div>
@@ -37,9 +37,9 @@
                     <td>{{user.type | uptext}}</td>
                     <td>{{user.created_at | configDate}}</td>
                     <td>
-                        <a href="#s"> <i class="fa fa-eye green"></i></a> |
-                        <a href="#s"> <i class="fa fa-edit purple"></i></a> |
-                        <a href="#a"> <i class="fa fa-trash red"></i></a>
+                        <a href="#"> <i class="fa fa-eye green"></i></a> |
+                        <a href="#" @click="updateUserModal(user)"> <i class="fa fa-edit purple"></i></a> |
+                        <a href="#" @click="deleteUser(user.id)"> <i class="fa fa-trash red"></i></a>
                     </td>
                   </tr>
                 </tbody></table>
@@ -51,16 +51,17 @@
         </div>
 
         <!-- Modal -->
-        <div class="modal fade" id="AddUserModal" tabindex="-1" role="dialog" aria-labelledby="AddUserModalLabel" aria-hidden="true">
+        <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="AddUserModalLabel">Create New</h5>
+                <h5 class="modal-title" v-show="!updatemode" id="userModalLabel">Create New User</h5>
+                <h5 class="modal-title" v-show="updatemode" id="userModalLabel">Update User</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-            <form @submit.prevent="createUser">
+            <form @submit.prevent="updatemode ? updateUser() : createUser()">
                 <div class="modal-body">                
                     <div class="form-group">
                         <input v-model="form.name" type="text" name="name" placeholder="Name" class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
@@ -70,6 +71,13 @@
                      <div class="form-group">
                         <input v-model="form.email" type="email" name="email" placeholder="Email Address" class="form-control" :class="{ 'is-invalid': form.errors.has('email') }">
                         <has-error :form="form" field="email"></has-error>
+                    </div>
+
+                     <div class="form-group">
+                        <textarea v-model="form.bio" name="bio" id="bio"
+                        placeholder="Short bio for user (Optional)"
+                        class="form-control" :class="{ 'is-invalid': form.errors.has('bio') }"></textarea>
+                        <has-error :form="form" field="bio"></has-error>
                     </div>
 
                     <div class="form-group">
@@ -89,7 +97,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" v-show="!updatemode" class="btn btn-primary">Create</button>
+                    <button type="submit" v-show="updatemode" class="btn btn-success">Update</button>
                 </div>
             </form>
             </div>
@@ -103,8 +112,10 @@
     export default {
         data() {
             return {
+                updatemode : false, 
                 users : {},
                 form: new Form({
+                  id : '',
                   name : '',
                   email : '',
                   password : '',
@@ -119,23 +130,102 @@
                 axios.get('api/user').then(({data}) => (this.users = data.data));
             },
 
+            createUserModal(){
+                this.updatemode = false;
+                this.form.reset();
+                $('#userModal').modal('show');
+            },
+
+            updateUserModal(user){
+                this.updatemode = true;
+                this.form.reset();
+                $('#userModal').modal('show');
+                this.form.fill(user);
+            },
+
             createUser() {
                 this.$Progress.start();
-                this.form.post('api/user');
 
-                $('#AddUserModal').modal('hide');
-                toast({
-                    type: 'success',
-                    title: 'User Create Successfully'
+                this.form.post('api/user')
+                .then(() => {
+                    Fire.$emit('AfterCreate');
+                    $('#userModal').modal('hide')
+
+                    toast({
+                        type: 'success',
+                        title: 'User Create Successfully'
+                    })
+
+                    this.$Progress.finish();
                 })
 
-                this.$Progress.finish();
-                this.getUsers();
-            }
+                .catch(() => {
+
+
+
+                })
+            },
+
+            updateUser(id) {
+                this.$Progress.start();
+                this.form.put('api/user/'+this.form.id)
+                .then(() => {
+                    Fire.$emit('AfterCreate');
+                    // toast({
+                    //     type: 'success',
+                    //     title: 'User Update Successfully'
+                    // })
+
+                    swal(
+                        'Updated!',
+                        'User has been updated.',
+                        'success'
+                        );
+                    $('#userModal').modal('hide')
+                    this.$Progress.finish();
+                    
+                })
+                .catch(() => {
+                    this.$Progress.fail();
+                })
+            },
+
+
+            deleteUser(id){
+                swal({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        // Send request to the server
+                         if (result.value) {
+                                this.form.delete('api/user/'+id).then(()=>{
+                                        swal(
+                                        'Deleted!',
+                                        'Your file has been deleted.',
+                                        'success'
+                                        )
+                                    Fire.$emit('AfterCreate');
+                                }).catch(()=> {
+                                    swal("Failed!", "There was something wronge.", "warning");
+                                });
+                         }
+                    })
+            }, 
         },
+
         created() {
-            this.getUsers();
-            // setInterval(() => this.getUsers(), 3000);
+            Fire.$on('AfterCreate', () => {
+              this.getUsers();
+            });
+        },
+
+        mounted() {
+           this.getUsers(); 
         }
     }
 </script>

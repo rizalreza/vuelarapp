@@ -14,6 +14,11 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function __construct()
+    // {
+    //     $this->middleware('auth:api');
+    // }
+
     public function index()
     {
         return User::latest()->paginate(10);
@@ -52,7 +57,36 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+
+    }
+
+    public function profile()
+    {
+        return auth('api')->user();
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth('api')->user();
+        
+        $this->validate($request,[
+            'name' => 'required|string|max:191',
+            'email' => 'required|string|email|max:191|unique:users,email,'.$user->id,
+            'password' => 'sometimes|min:6'
+
+        ]);
+
+        $currentPhoto = $user->photo;
+
+        if ($request->photo != $currentPhoto) {
+            $fileName = time().'.' . explode('/', explode(':', substr($request->photo, 0, strpos($request->photo, ';')))[1])[1];
+            \Image::make($request->photo)->save(public_path('img/profile/').$fileName);  
+
+            $request->merge(['photo' => $fileName]);  
+        }
+
+        $user->update($request->all());
+        return ['message' => "Success"];
     }
 
     /**
@@ -64,7 +98,19 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        
+        $this->validate($request,[
+            'name' => 'required|string|max:191',
+            'email' => 'required|string|email|max:191|unique:users,email,'.$user->id,
+            'password' => 'sometimes|min:6'
+
+        ]);
+
+
+
+        $user->update($request->all());
+        return['message' => "Success"];
     }
 
     /**
@@ -75,6 +121,9 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id)->delete();
+
+        return ['message' => 'User Deleted !'];
+
     }
 }

@@ -78,7 +78,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                with font-awesome or any other icon font library -->
           <li class="nav-item">
             <router-link to="/dashboard" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt cyan"></i>
+              <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
               </p>
@@ -86,7 +86,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           </li>         
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-cog green"></i>
+              <i class="nav-icon fas fa-cog"></i>
               <p>
                 Management
                 <i class="right fas fa-angle-left"></i>
@@ -95,23 +95,21 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <router-link to="/users" class="nav-link">
-                  <a href="#" class="nav-link">
                     <i class="fas fa-users nav-icon"></i>
                     <p>Users</p>
-                  </a>
                 </router-link>
               </li>
-              <li class="nav-item">
+<!--               <li class="nav-item">
                 <a href="#" class="nav-link">
                   <i class="fas fa-circle-o nav-icon"></i>
                   <p>Inactive Page</p>
                 </a>
-              </li>
+              </li> -->
             </ul>
           </li>
           <li class="nav-item">
              <router-link to="/profile" class="nav-link">
-              <i class="nav-icon fas fa-user orange"></i>
+              <i class="nav-icon fas fa-user"></i>
               <p>
                 Profile
               </p>
