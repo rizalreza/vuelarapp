@@ -13,7 +13,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>AdminLTE 3 | Starter</title>
+  <title>VueLarApp</title>
 
   <link rel="stylesheet" href="/css/app.css" >
 </head>
@@ -83,7 +83,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 Dashboard
               </p>
             </router-link>
-          </li>         
+          </li>   
+          @can('isAdmin')      
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cog"></i>
@@ -99,14 +100,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <p>Users</p>
                 </router-link>
               </li>
-<!--               <li class="nav-item">
-                <a href="#" class="nav-link">
-                  <i class="fas fa-circle-o nav-icon"></i>
-                  <p>Inactive Page</p>
-                </a>
-              </li> -->
             </ul>
           </li>
+          @endcan
           <li class="nav-item">
              <router-link to="/profile" class="nav-link">
               <i class="nav-icon fas fa-user"></i>
@@ -115,6 +111,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
               </p>
             </router-link>
           </li>
+
           <li class="nav-item">
             <a class="nav-link" href="{{ route('logout') }}"
                onclick="event.preventDefault();
@@ -160,14 +157,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
 </div>
 <!-- ./wrapper -->
 
-<!-- REQUIRED SCRIPTS -->
+@auth
+<script>
+  window.user = @json(auth()->user())
+</script>
+@endauth
 
-<!-- jQuery -->
+
 <script src="/js/app.js"></script>
-<!-- <script src="plugins/jquery/jquery.min.js"></script> -->
-<!-- Bootstrap 4 -->
-<!-- <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script> -->
-<!-- AdminLTE App -->
-<!-- <script src="dist/js/adminlte.min.js"></script> -->
+
 </body>
 </html>

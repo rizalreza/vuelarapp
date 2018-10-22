@@ -14,10 +14,6 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api');
-    // }
 
     public function index()
     {
@@ -45,7 +41,7 @@ class UserController extends Controller
         'type' => $request['type'],
         'bio' => $request['bio'],
         'photo' => $request['photo'],
-        'password' => Hash::make($request['name']),
+        'password' => Hash::make($request['password']),
        ]);
     }
 
@@ -83,10 +79,19 @@ class UserController extends Controller
             \Image::make($request->photo)->save(public_path('img/profile/').$fileName);  
 
             $request->merge(['photo' => $fileName]);  
+
+            $userPhoto = public_path('img/profile/').$currentPhoto;
+            if(file_exists($userPhoto)){
+                @unlink($userPhoto);
+            }
+        }
+
+        if (!empty($request->password)) {
+            $request->merge(['password' => Hash::make($request['password'])]);
         }
 
         $user->update($request->all());
-        return ['message' => "Success"];
+        return ['message' => 'Success'];
     }
 
     /**
@@ -121,6 +126,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        $this->authorize('isAdmin');
         $user = User::findOrFail($id)->delete();
 
         return ['message' => 'User Deleted !'];
