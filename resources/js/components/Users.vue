@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row">
+        <div class="row" v-if="$gate.isAdmin()">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
@@ -84,8 +84,8 @@
                         <select v-model="form.type" name="type" class="form-control" :class="{ 'is-invalid': form.errors.has('type') }">
                             <option value="">Select Role</option>
                             <option value="admin">Admin</option>
-                            <option value="user">User</option>
                             <option value="author">Author</option>
+                            <option value="user">User</option>
                         </select>
                         <has-error :form="form" field="name"></has-error>
                     </div>
@@ -127,7 +127,9 @@
         },
         methods: {
             getUsers() {
+                if(this.$gate.isAdmin()) {
                 axios.get('api/user').then(({data}) => (this.users = data.data));
+                }
             },
 
             createUserModal(){
