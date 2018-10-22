@@ -14,10 +14,6 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api');
-    // }
 
     public function index()
     {
@@ -96,7 +92,6 @@ class UserController extends Controller
 
         $user->update($request->all());
         return ['message' => 'Success'];
-        // return \Redirect::back();
     }
 
     /**
